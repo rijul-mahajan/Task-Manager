@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskFlow - Your Personal Task Manager</title>
+    <link rel="icon" href="checkmark.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      (function () {
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme === "dark") {
+          document.documentElement.classList.add("dark-mode");
+        } else {
+          document.documentElement.classList.remove("dark-mode");
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div>
+          <h1>TaskFlow</h1>
+          <p>A minimal kanban-style task manager</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center">
+          <div class="search-container">
+            <i data-feather="search" class="search-icon"></i>
+            <input
+              type="text"
+              class="search-input"
+              id="search-tasks"
+              placeholder="Search tasks..."
+            />
+          </div>
+          <button id="theme-toggle" class="theme-toggle">
+            <i data-feather="moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <div class="filters">
+        <div class="filter-item active" data-filter="all">All Tasks</div>
+        <div class="filter-item" data-filter="priority-high">High Priority</div>
+        <div class="filter-item" data-filter="priority-medium">
+          Medium Priority
+        </div>
+        <div class="filter-item" data-filter="priority-low">Low Priority</div>
+        <div class="filter-item" data-filter="category-work">Work</div>
+        <div class="filter-item" data-filter="category-personal">Personal</div>
+        <button id="add-task-btn" class="btn btn-primary">
+          <i data-feather="plus"></i> <span>Add Task</span>
+        </button>
+      </div>
+
+      <div class="swipe-indicator">
+        <i data-feather="arrow-left"></i>
+        Swipe to see more columns
+        <i data-feather="arrow-right"></i>
+      </div>
+
+      <div class="board">
+        <div class="column" id="todo-column">
+          <div class="column-header">
+            <div class="title-group">
+              <h3 class="column-title">To Do</h3>
+              <select class="sort-select form-select" data-column="todo">
+                <option value="default">Sort: Default</option>
+                <option value="dueDate">Due Date</option>
+                <option value="priority">Priority</option>
+                <option value="createdAt">Created At</option>
+              </select>
+            </div>
+            <span class="column-count" id="todo-count">0</span>
+          </div>
+          <div class="tasks" id="todo-tasks" data-column="todo">
+            <div class="empty-column">
+              <i data-feather="list" class="empty-icon"></i>
+              <div>No tasks yet</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="column" id="progress-column">
+          <div class="column-header">
+            <div class="title-group">
+              <h3 class="column-title">In Progress</h3>
+              <select class="sort-select form-select" data-column="progress">
+                <option value="default">Sort: Default</option>
+                <option value="dueDate">Due Date</option>
+                <option value="priority">Priority</option>
+                <option value="createdAt">Created At</option>
+              </select>
+            </div>
+            <span class="column-count" id="progress-count">0</span>
+          </div>
+          <div class="tasks" id="progress-tasks" data-column="progress">
+            <div class="empty-column">
+              <i data-feather="clock" class="empty-icon"></i>
+              <div>No tasks in progress</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="column" id="completed-column">
+          <div class="column-header">
+            <div class="title-group">
+              <h3 class="column-title">Completed</h3>
+              <select class="sort-select form-select" data-column="completed">
+                <option value="default">Sort: Default</option>
+                <option value="dueDate">Due Date</option>
+                <option value="priority">Priority</option>
+                <option value="createdAt">Created At</option>
+              </select>
+            </div>
+            <button
+              class="btn-icon clear-completed"
+              id="clear-completed-btn"
+              title="Clear all completed tasks"
+            >
+              <i data-feather="trash"></i>
+            </button>
+            <span class="column-count" id="completed-count">0</span>
+          </div>
+          <div class="tasks" id="completed-tasks" data-column="completed">
+            <div class="empty-column">
+              <i data-feather="check-circle" class="empty-icon"></i>
+              <div>No completed tasks</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="task-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title" id="modal-title">Add New Task</h3>
+          <button class="btn-icon" id="close-modal">
+            <i data-feather="x"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="task-form">
+            <input type="hidden" id="task-id" value="" />
+            <div class="form-group">
+              <label for="task-title" class="form-label">Task Title</label>
+              <input
+                type="text"
+                id="task-title"
+                class="form-control"
+                placeholder="Enter task title"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="task-description" class="form-label"
+                >Description (optional)</label
+              >
+              <textarea
+                id="task-description"
+                class="form-control"
+                rows="3"
+                placeholder="Enter task description"
+              ></textarea>
+            </div>
+            <!-- New Subtasks Section -->
+            <div class="form-group">
+              <label class="form-label">Subtasks (optional)</label>
+              <div class="subtask-input-group">
+                <input
+                  type="text"
+                  id="subtask-input"
+                  class="form-control"
+                  placeholder="Add a subtask"
+                />
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  id="add-subtask-btn"
+                >
+                  <i data-feather="plus"></i>
+                </button>
+              </div>
+              <ul class="subtask-list" id="subtask-list"></ul>
+            </div>
+            <div class="form-group">
+              <label for="task-due-date" class="form-label"
+                >Due Date (optional)</label
+              >
+              <input type="date" id="task-due-date" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label for="task-priority" class="form-label">Priority</label>
+              <select id="task-priority" class="form-control form-select">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="task-category" class="form-label">Category</label>
+              <select id="task-category" class="form-control form-select">
+                <option value="work">Work</option>
+                <option value="personal">Personal</option>
+                <option value="study">Study</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" id="cancel-task">Cancel</button>
+          <button class="btn btn-primary" id="save-task">Save Task</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="notification" id="notification">
+      <div class="notification-title" id="notification-title"></div>
+      <div class="notification-message" id="notification-message"></div>
+      <button
+        class="btn btn-outline undo-btn"
+        id="undo-btn"
+        style="display: none"
+      >
+        Undo
+      </button>
+    </div>
+
+    <div class="task-complete-icon">
+      <i data-feather="check"></i>
+    </div>
+
+    <footer class="footer">
+      <p>
+        &copy; 2025 Rijul Mahajan | Visit my
+        <a href="https://github.com/rijul-mahajan" target="_blank">GitHub</a>
+        for more projects.
+      </p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.2/feather.min.js"></script>
+    <script src="script.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.2/feather.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
