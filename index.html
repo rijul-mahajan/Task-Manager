@@ -120,14 +120,16 @@
                 <option value="createdAt">Created At</option>
               </select>
             </div>
-            <button
-              class="btn-icon clear-completed"
-              id="clear-completed-btn"
-              title="Clear all completed tasks"
-            >
-              <i data-feather="trash"></i>
-            </button>
-            <span class="column-count" id="completed-count">0</span>
+            <div class="completed-actions">
+              <button
+                class="btn-icon clear-completed"
+                id="clear-completed-btn"
+                title="Clear all completed tasks"
+              >
+                <i data-feather="trash"></i>
+              </button>
+              <span class="column-count" id="completed-count">0</span>
+            </div>
           </div>
           <div class="tasks" id="completed-tasks" data-column="completed">
             <div class="empty-column">
@@ -246,9 +248,6 @@
         for more projects.
       </p>
     </footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.2/feather.min.js"></script>
-    <script src="script.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.2/feather.min.js"></script>
     <script src="script.js"></script>

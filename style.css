@@ -265,10 +265,16 @@ button {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
+.completed-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .clear-completed {
-  margin-right: -75px;
   color: var(--gray-500);
   transition: var(--transition);
+  order: 1;
 }
 
 .clear-completed:hover {
@@ -290,6 +296,7 @@ button {
   padding: 0.25rem 0.5rem;
   border-radius: 9999px;
   transition: var(--transition);
+  order: 2;
 }
 
 .tasks {
@@ -1037,5 +1044,26 @@ button {
 @media (max-width: 768px) {
   .swipe-indicator {
     display: block;
+  }
+
+  .board {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    gap: 1.5rem;
+    padding-bottom: 1rem;
+  }
+
+  .board::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .column {
+    width: 400px;
+    min-width: 400px;
+    flex-shrink: 0;
+    scroll-snap-align: start;
   }
 }
